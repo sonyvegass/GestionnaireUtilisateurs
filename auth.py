@@ -149,7 +149,7 @@ class Auth:
             """, (login,))
             
             tentatives = cursor.fetchone()
-            if tentatives and tentatives['tentatives'] >= 3:
+            if tentatives and tentatives['tentatives'] >= 5:
                 if datetime.now() - tentatives['derniere_tentative'] < timedelta(minutes=15):
                     print("❌ Compte temporairement bloqué. Réessayez dans 15 minutes.")
                     return False
@@ -190,7 +190,7 @@ class Auth:
             conn.commit()
 
         except Error as e:
-            print(f"❌ Erreur lors de la connexion: {e}")
+            print(f"❌ Erreur lors de la connexion: Compte temporairement bloqué. Réessayez dans 15 minutes ou {e}")
             return False
 
         finally:

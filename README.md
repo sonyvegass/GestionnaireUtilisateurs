@@ -28,7 +28,7 @@ Le système utilise trois tables principales :
 
 3. **tentatives_connexion**
    - Suivi des tentatives de connexion
-   - Mécanisme anti-bruteforce : limité à 2 tentatives de connexion
+   - Mécanisme anti-bruteforce : limité à 5 tentatives de connexion
    - Verrouillage temporaire après échecs
 
 #### 2.2 Hiérarchie des Rôles
@@ -113,7 +113,7 @@ Finalement, on peut se connecter en tant que :
 - Réinitialisation contrôlée
 
 ##### c) Protection Contre les Attaques
-- Limitation des tentatives de connexion à 2 
+- Limitation des tentatives de connexion à 5
 - Verrouillage temporaire des comptes
 - Journalisation des tentatives
 
