@@ -1,12 +1,14 @@
 # main.py
 from auth import Auth
 from users import UserManager
+from region_manager import RegionManager
 from db_config import init_database
 
 class Application:
     def __init__(self):
         self.auth = Auth()
         self.user_manager = UserManager(self.auth)
+        self.region_manager = RegionManager(self.auth)
         
     def afficher_menu(self):
         """Affiche le menu selon le rôle de l'utilisateur"""
@@ -27,6 +29,39 @@ class Application:
         print("Q. Quitter")
         
         return input("\nVotre choix : ").upper()
+        
+    def gerer_regions(self):
+        """Sous-menu pour la gestion des régions"""
+        while True:
+            print("\n=== Gestion des Régions ===")
+            print("1. Ajouter une région")
+            print("2. Supprimer une région")
+            print("3. Lister les régions")
+            print("4. Transférer les utilisateurs")
+            print("R. Retour au menu principal")
+            
+            choix = input("\nVotre choix : ").upper()
+            
+            if choix == '1':
+                nom_region = input("Nom de la nouvelle région : ")
+                self.region_manager.ajouter_region(nom_region)
+                
+            elif choix == '2':
+                nom_region = input("Nom de la région à supprimer : ")
+                self.region_manager.supprimer_region(nom_region)
+                
+            elif choix == '3':
+                self.region_manager.lister_regions()
+                
+            elif choix == '4':
+                region_source = input("Région source : ")
+                region_cible = input("Région cible : ")
+                self.region_manager.transferer_utilisateurs(region_source, region_cible)
+                
+            elif choix == 'R':
+                break
+            else:
+                print("❌ Choix invalide")
 
     def executer(self):
         """Point d'entrée principal de l'application"""
@@ -85,7 +120,7 @@ class Application:
                     self.auth.creer_admins_regionaux()
                 
                 elif choix == '7' and self.auth.session_manager.get_current_user_role()['role'] == 'super_admin':
-                    print("\nGestion des régions non implémentée")
+                    self.gerer_regions()
                 
                 elif choix == 'D':
                     self.auth.deconnexion()
