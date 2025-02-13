@@ -1,4 +1,3 @@
-# auth.py
 import hashlib
 import random
 import string
@@ -18,7 +17,6 @@ class Auth:
         chiffres = string.digits
         symboles = "!@#$%^&*"
         
-        # Au moins un de chaque catégorie
         mot_de_passe = [
             random.choice(lettres.lower()),
             random.choice(lettres.upper()),
@@ -26,12 +24,10 @@ class Auth:
             random.choice(symboles)
         ]
         
-        # Compléter avec des caractères aléatoires
         caracteres = lettres + chiffres + symboles
         for _ in range(longueur - 4):
             mot_de_passe.append(random.choice(caracteres))
         
-        # Mélanger le mot de passe
         random.shuffle(mot_de_passe)
         return ''.join(mot_de_passe)
 
@@ -48,12 +44,10 @@ class Auth:
         try:
             cursor = conn.cursor(dictionary=True)
             
-            # Vérifier si le super admin existe déjà
             cursor.execute("SELECT * FROM utilisateurs WHERE role = 'super_admin'")
             if cursor.fetchone():
                 return None
 
-            # Créer le super admin
             mot_de_passe = self.generer_mot_de_passe()
             hash_mdp = self.hasher_mot_de_passe(mot_de_passe)
             expiration = datetime.now() + timedelta(days=90)
@@ -96,7 +90,6 @@ class Auth:
             admins_crees = []
 
             for region in self.regions:
-                # Vérifier si un admin existe déjà pour cette région
                 cursor.execute("""
                     SELECT * FROM utilisateurs 
                     WHERE role = 'admin' AND region = %s
@@ -106,7 +99,7 @@ class Auth:
                     mot_de_passe = self.generer_mot_de_passe()
                     hash_mdp = self.hasher_mot_de_passe(mot_de_passe)
                     expiration = datetime.now() + timedelta(days=90)
-                    login = f"admin{region.lower()[:3]}"  # Exemple: adminren pour Rennes
+                    login = f"admin{region.lower()[:3]}"
 
                     cursor.execute("""
                         INSERT INTO utilisateurs 
@@ -149,7 +142,6 @@ class Auth:
         try:
             cursor = conn.cursor(dictionary=True)
             
-            # Vérifier les tentatives de connexion
             cursor.execute("""
                 SELECT tentatives, derniere_tentative 
                 FROM tentatives_connexion 
@@ -162,7 +154,6 @@ class Auth:
                     print("❌ Compte temporairement bloqué. Réessayez dans 15 minutes.")
                     return False
 
-            # Vérifier les identifiants
             cursor.execute("""
                 SELECT * FROM utilisateurs 
                 WHERE login = %s AND expiration > NOW()
@@ -170,14 +161,12 @@ class Auth:
             
             user = cursor.fetchone()
             if user and self.hasher_mot_de_passe(mot_de_passe) == user['password']:
-                # Réinitialiser les tentatives
                 cursor.execute("""
                     INSERT INTO tentatives_connexion (login, tentatives, derniere_tentative)
                     VALUES (%s, 0, NOW())
                     ON DUPLICATE KEY UPDATE tentatives = 0, derniere_tentative = NOW()
                 """, (login,))
                 
-                # Créer une session
                 session_token = self.session_manager.create_session(login)
                 if session_token:
                     print(f"✅ Connexion réussie ! Bienvenue, {user['prenom']} {user['nom']}.")
@@ -187,7 +176,6 @@ class Auth:
                         print(f"👨‍💼 Vous êtes administrateur de la région {user['region']}.")
                     return True
             else:
-                # Incrémenter les tentatives
                 cursor.execute("""
                     INSERT INTO tentatives_connexion (login, tentatives, derniere_tentative)
                     VALUES (%s, 1, NOW())
@@ -222,11 +210,9 @@ class Auth:
         if not user_info:
             return False
 
-        # Super admin peut tout faire
         if user_info['role'] == 'super_admin':
             return True
 
-        # Admin régional ne peut gérer que sa région
         if user_info['role'] == 'admin':
             return region is None or region == user_info['region']
 

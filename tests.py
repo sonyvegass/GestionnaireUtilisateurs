@@ -15,9 +15,7 @@ class TestAuth(unittest.TestCase):
     def test_generer_mot_de_passe(self):
         """Test de la génération de mot de passe"""
         password = self.auth.generer_mot_de_passe()
-        # Vérifier la longueur
         self.assertEqual(len(password), 12)
-        # Vérifier la présence des différents types de caractères
         self.assertTrue(any(c.islower() for c in password))
         self.assertTrue(any(c.isupper() for c in password))
         self.assertTrue(any(c.isdigit() for c in password))
@@ -27,9 +25,7 @@ class TestAuth(unittest.TestCase):
         """Test du hashage de mot de passe"""
         password = "Test123!"
         hashed = self.auth.hasher_mot_de_passe(password)
-        # Vérifier que le hash est toujours le même pour le même mot de passe
         self.assertEqual(hashed, self.auth.hasher_mot_de_passe(password))
-        # Vérifier la longueur du hash SHA-256
         self.assertEqual(len(hashed), 64)
         
     @patch('auth.get_connection')
@@ -37,7 +33,7 @@ class TestAuth(unittest.TestCase):
         """Test de création du super admin"""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
-        mock_cursor.fetchone.return_value = None  # Pas de super admin existant
+        mock_cursor.fetchone.return_value = None  
         mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         
@@ -53,14 +49,12 @@ class TestAuth(unittest.TestCase):
         mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         
-        # Mock the login attempts check
+
         mock_cursor.fetchone.side_effect = [
-            # First fetchone call for tentatives_connexion
             {
                 'tentatives': 0,
                 'derniere_tentative': datetime.now()
             },
-            # Second fetchone call for user credentials
             {
                 'login': 'test_user',
                 'password': self.auth.hasher_mot_de_passe('test_password'),
@@ -75,7 +69,6 @@ class TestAuth(unittest.TestCase):
         with patch('builtins.input', side_effect=['test_user', 'test_password']):
             self.assertTrue(self.auth.connexion())
             
-        # Verify the correct SQL queries were executed
         mock_cursor.execute.assert_any_call(
             """
                 SELECT tentatives, derniere_tentative 
@@ -141,7 +134,6 @@ class TestUserManager(unittest.TestCase):
         mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         
-        # Simuler des données de test
         mock_cursor.fetchall.return_value = [{
             'nom': 'Test',
             'prenom': 'User',
@@ -163,7 +155,7 @@ class TestUserManager(unittest.TestCase):
         mock_cursor = MagicMock()
         mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
-        mock_cursor.fetchone.return_value = None  # Login n'existe pas
+        mock_cursor.fetchone.return_value = None 
         
         with patch.object(self.auth.session_manager, 'is_session_valid', return_value=True):
             with patch.object(self.auth.session_manager, 'get_current_user_role', 

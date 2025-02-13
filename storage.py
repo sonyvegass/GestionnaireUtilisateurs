@@ -1,4 +1,3 @@
-# storage.py
 from db_config import get_connection
 from mysql.connector import Error
 
@@ -13,14 +12,12 @@ class Storage:
         try:
             cursor = conn.cursor()
             
-            # Vérifier si l'utilisateur existe déjà
             cursor.execute(
                 "SELECT login FROM utilisateurs WHERE login = %s",
                 (utilisateur['login'],)
             )
             
             if cursor.fetchone():
-                # Mise à jour
                 query = """
                     UPDATE utilisateurs 
                     SET nom = %s, prenom = %s, role = %s, region = %s,
@@ -34,7 +31,6 @@ class Storage:
                     utilisateur['login']
                 )
             else:
-                # Insertion
                 query = """
                     INSERT INTO utilisateurs (nom, prenom, login, role, region,
                                            password, createur, expiration)

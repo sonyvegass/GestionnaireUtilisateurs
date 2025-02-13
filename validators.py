@@ -1,9 +1,7 @@
-# validators.py
 import re
 from datetime import datetime
 
 class DataValidator:
-    # Règles de validation
     NOM_MIN_LENGTH = 2
     NOM_MAX_LENGTH = 50
     ROLES_VALIDES = ['super_admin', 'admin', 'utilisateur']
@@ -64,22 +62,18 @@ class DataValidator:
         """Valide toutes les données d'un utilisateur"""
         erreurs = []
         
-        # Validation du nom
         valide, message = cls.valider_nom(data.get('nom', ''))
         if not valide:
             erreurs.append(f"Nom invalide: {message}")
             
-        # Validation du prénom
         valide, message = cls.valider_nom(data.get('prenom', ''))
         if not valide:
             erreurs.append(f"Prénom invalide: {message}")
             
-        # Validation du rôle
         valide, message = cls.valider_role(data.get('role', ''))
         if not valide:
             erreurs.append(f"Rôle invalide: {message}")
             
-        # Validation de la région si présente
         if 'region' in data and data['region']:
             valide, message = cls.valider_region(data['region'])
             if not valide:

@@ -1,4 +1,3 @@
-# main.py
 from auth import Auth
 from users import UserManager
 from region_manager import RegionManager
@@ -70,11 +69,9 @@ class Application:
             print("❌ Erreur d'initialisation de la base de données")
             return
             
-        # Création du super admin si nécessaire
         self.auth.creer_super_admin()
         
         while True:
-            # Si pas de session active, demander connexion
             if not self.auth.session_manager.is_session_valid():
                 print("\n🔒 Connexion requise")
                 print("1. Se connecter")
@@ -90,7 +87,6 @@ class Application:
                     print("❌ Choix invalide")
                     continue
             
-            # Menu principal pour utilisateur connecté
             choix = self.afficher_menu()
             
             try:

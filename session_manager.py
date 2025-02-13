@@ -1,4 +1,3 @@
-# session_manager.py
 import uuid
 from datetime import datetime, timedelta
 from db_config import get_connection
@@ -18,10 +17,8 @@ class SessionManager:
         try:
             cursor = conn.cursor()
             
-            # Supprimer les anciennes sessions
             cursor.execute("DELETE FROM sessions WHERE login = %s", (login,))
             
-            # Créer une nouvelle session
             session_token = str(uuid.uuid4())
             expiration = datetime.now() + timedelta(hours=8)
             

@@ -1,4 +1,3 @@
-# users.py
 from datetime import datetime, timedelta
 from mysql.connector import Error
 from db_config import get_connection
@@ -15,13 +14,11 @@ class UserManager:
             
         current_user = self.auth.session_manager.get_current_user_role()
         
-        # Collecter les informations
         nom = input("Nom : ")
         prenom = input("Prénom : ")
         role = input("Rôle (utilisateur/admin) : ")
         region = input("Région : ")
         
-        # Vérifications des droits
         if role == "admin" and current_user['role'] != "super_admin":
             print("❌ Seul le super admin peut créer des administrateurs.")
             return None
@@ -37,19 +34,16 @@ class UserManager:
         try:
             cursor = conn.cursor()
             
-            # Générer login et mot de passe
             login = (prenom[0] + nom).lower()
             mot_de_passe = self.auth.generer_mot_de_passe()
             hash_mdp = self.auth.hasher_mot_de_passe(mot_de_passe)
             expiration = datetime.now() + timedelta(days=90)
             
-            # Vérifier si le login existe déjà
             cursor.execute("SELECT login FROM utilisateurs WHERE login = %s", (login,))
             if cursor.fetchone():
                 print("❌ Ce login existe déjà !")
                 return None
                 
-            # Insertion du nouvel utilisateur
             cursor.execute("""
                 INSERT INTO utilisateurs 
                 (nom, prenom, login, role, region, password, createur, expiration)
@@ -85,7 +79,6 @@ class UserManager:
         try:
             cursor = conn.cursor(dictionary=True)
             
-            # Récupérer l'utilisateur à modifier
             cursor.execute("SELECT * FROM utilisateurs WHERE login = %s", (login,))
             utilisateur = cursor.fetchone()
             
@@ -93,7 +86,6 @@ class UserManager:
                 print("❌ Utilisateur non trouvé!")
                 return False
                 
-            # Vérifier les droits
             current_user = self.auth.session_manager.get_current_user_role()
             if current_user['role'] == 'admin':
                 if utilisateur['region'] != current_user['region']:
@@ -103,7 +95,6 @@ class UserManager:
                     print("❌ Vous ne pouvez pas promouvoir un utilisateur en admin.")
                     return False
                     
-            # Construire la requête de mise à jour
             champs_autorises = ['nom', 'prenom', 'role', 'region']
             updates = []
             values = []
@@ -146,7 +137,6 @@ class UserManager:
         try:
             cursor = conn.cursor(dictionary=True)
             
-            # Récupérer l'utilisateur à supprimer
             cursor.execute("SELECT * FROM utilisateurs WHERE login = %s", (login,))
             utilisateur = cursor.fetchone()
             
@@ -154,7 +144,6 @@ class UserManager:
                 print("❌ Utilisateur non trouvé!")
                 return False
                 
-            # Vérifier les droits
             current_user = self.auth.session_manager.get_current_user_role()
             if current_user['role'] == 'admin':
                 if utilisateur['region'] != current_user['region']:
@@ -194,7 +183,6 @@ class UserManager:
         try:
             cursor = conn.cursor(dictionary=True)
             
-            # Construire la requête avec les filtres
             query = "SELECT * FROM utilisateurs WHERE 1=1"
             params = []
             
@@ -247,7 +235,6 @@ class UserManager:
         try:
             cursor = conn.cursor(dictionary=True)
             
-            # Récupérer l'utilisateur
             cursor.execute("SELECT * FROM utilisateurs WHERE login = %s", (login,))
             utilisateur = cursor.fetchone()
             
@@ -255,13 +242,11 @@ class UserManager:
                 print("❌ Utilisateur non trouvé!")
                 return None
                 
-            # Vérifier les droits
             current_user = self.auth.session_manager.get_current_user_role()
             if current_user['role'] == 'admin' and utilisateur['region'] != current_user['region']:
                 print("❌ Vous ne pouvez réinitialiser que les mots de passe des utilisateurs de votre région.")
                 return None
                 
-            # Générer et enregistrer le nouveau mot de passe
             nouveau_mdp = self.auth.generer_mot_de_passe()
             hash_mdp = self.auth.hasher_mot_de_passe(nouveau_mdp)
             expiration = datetime.now() + timedelta(days=90)

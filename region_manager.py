@@ -1,4 +1,3 @@
-# region_manager.py
 from mysql.connector import Error
 from db_config import get_connection
 from validators import DataValidator
@@ -19,7 +18,6 @@ class RegionManager:
             print("❌ Seul le super admin peut gérer les régions.")
             return False
             
-        # Validation du nom de la région
         valide, message = self.validator.valider_nom(nom_region)
         if not valide:
             print(f"❌ {message}")
@@ -32,7 +30,6 @@ class RegionManager:
         try:
             cursor = conn.cursor()
             
-            # Ajouter la nouvelle région à l'énumération
             cursor.execute("""
                 ALTER TABLE utilisateurs 
                 MODIFY COLUMN region ENUM('Paris', 'Rennes', 'Strasbourg', 'Grenoble', 'Nantes', %s)
@@ -71,13 +68,11 @@ class RegionManager:
         try:
             cursor = conn.cursor()
             
-            # Vérifier s'il y a des utilisateurs dans cette région
             cursor.execute("SELECT COUNT(*) FROM utilisateurs WHERE region = %s", (nom_region,))
             if cursor.fetchone()[0] > 0:
                 print("❌ Impossible de supprimer une région qui contient des utilisateurs.")
                 return False
                 
-            # Supprimer la région de l'énumération
             cursor.execute("""
                 ALTER TABLE utilisateurs 
                 MODIFY COLUMN region ENUM('Paris', 'Rennes', 'Strasbourg', 'Grenoble', 'Nantes')
@@ -107,7 +102,6 @@ class RegionManager:
         try:
             cursor = conn.cursor()
             
-            # Récupérer les statistiques par région
             cursor.execute("""
                 SELECT 
                     region,
@@ -147,7 +141,6 @@ Région: {region[0]}
             print("❌ Seul le super admin peut transférer des utilisateurs entre régions.")
             return False
             
-        # Validation des régions
         valide, message = self.validator.valider_region(region_source)
         if not valide:
             print(f"❌ Région source invalide: {message}")
@@ -165,7 +158,6 @@ Région: {region[0]}
         try:
             cursor = conn.cursor()
             
-            # Mettre à jour la région des utilisateurs
             cursor.execute("""
                 UPDATE utilisateurs 
                 SET region = %s 

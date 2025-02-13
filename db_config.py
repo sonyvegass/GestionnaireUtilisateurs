@@ -1,17 +1,15 @@
-# db_config.py
 from mysql.connector import connect, Error
 
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': '123',  # À modifier selon votre configuration
+    'password': '123',  
     'database': 'hospital_users'
 }
 
 def init_database():
     """Initialise la base de données et les tables"""
     try:
-        # Première connexion pour créer la base de données
         conn = connect(
             host=DB_CONFIG['host'],
             user=DB_CONFIG['user'],
@@ -19,11 +17,9 @@ def init_database():
         )
         cursor = conn.cursor()
         
-        # Création de la base de données
         cursor.execute("CREATE DATABASE IF NOT EXISTS hospital_users")
         cursor.execute("USE hospital_users")
         
-        # Création de la table utilisateurs
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS utilisateurs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,7 +36,6 @@ def init_database():
             )
         """)
         
-        # Création de la table sessions
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS sessions (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -51,7 +46,6 @@ def init_database():
             )
         """)
         
-        # Création de la table tentatives_connexion
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS tentatives_connexion (
                 id INT AUTO_INCREMENT PRIMARY KEY,
