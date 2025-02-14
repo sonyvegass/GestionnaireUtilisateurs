@@ -160,7 +160,7 @@ class TestUserManager(unittest.TestCase):
         with patch.object(self.auth.session_manager, 'is_session_valid', return_value=True):
             with patch.object(self.auth.session_manager, 'get_current_user_role', 
                             return_value={'role': 'admin', 'region': 'Paris'}):
-                with patch('builtins.input', side_effect=['Doe', 'John', 'utilisateur', 'Paris']):
+                with patch('builtins.input', side_effect=['Titi', 'Toto', 'utilisateur', 'Paris']):
                     result = self.user_manager.ajouter_utilisateur()
                     self.assertIsNotNone(result)
 

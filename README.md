@@ -189,3 +189,16 @@ Finalement, on peut se connecter en tant que :
 ### 9. Conclusion
 
 Ce système offre une solution complète et sécurisée pour la gestion des utilisateurs dans un contexte hospitalier multi-régional. Sa structure modulaire, ses mécanismes de sécurité et sa couverture de tests en font une base solide pour les besoins de gestion d'accès dans un environnement médical.
+
+
+# Commandes pour run le projet : 
+- pip install mysql-connector-python
+- avoir MySQL installé et en cours d'exécution sur votre machine :
+
+      - lancer wamp/xamp
+      - se connecter sur Phpmyadmin
+      - "user" et "password" du fichier `db_config.py` doivent etre les meme que ceux utilisés pour se connecter sur Phpmyadmin
+      - créer la base de données `hospital_users` sur Phpmyadmin
+- s\'assurer d'avoir modifier le mot de passe dans le fichier `db_config.py`
+- python main.py
+- python -m unittest tests.py
