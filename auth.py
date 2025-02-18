@@ -6,13 +6,20 @@ from db_config import get_connection
 from session_manager import SessionManager
 from mysql.connector import Error
 
+# Classe pour gérer l'authentification et les autorisations
+## Cette classe contient des méthodes pour créer les admin, générer des mots de passe,
+## hasher les mots de passe, vérifier les autorisations, etc.
+## Elle utilise la classe SessionManager pour gérer les sessions utilisateur.
+## Elle utilise également la classe get_connection pour se connecter à la base de données.
+## Elle utilise la classe Error pour gérer les erreurs de connexion.
+## Self fait reference à une instance spécifique de la classe Auth.
 class Auth:
-    def __init__(self):
-        self.session_manager = SessionManager()
-        self.regions = ['Rennes', 'Strasbourg', 'Nantes', 'Grenoble']
+    def __init__(self): # Constructeur qui permet de créer une instance de SessionManager et une liste de régions
+        self.session_manager = SessionManager() # Création d'une instance de SessionManager
+        self.regions = ['Rennes', 'Strasbourg', 'Nantes', 'Grenoble'] # Liste des régions
 
-    def generer_mot_de_passe(self, longueur=12):
-        """Génère un mot de passe aléatoire avec des critères de complexité"""
+    def generer_mot_de_passe(self, longueur=12): # Méthode pour générer un mot de passe
+        """Génère un mot de passe aléatoire avec des critères de complexité""" # Commentaire de la méthode
         lettres = string.ascii_letters
         chiffres = string.digits
         symboles = "!@#$%^&*"
@@ -31,11 +38,11 @@ class Auth:
         random.shuffle(mot_de_passe)
         return ''.join(mot_de_passe)
 
-    def hasher_mot_de_passe(self, mot_de_passe):
+    def hasher_mot_de_passe(self, mot_de_passe): # Méthode pour hasher un mot de passe
         """Hash le mot de passe avec SHA-256"""
         return hashlib.sha256(mot_de_passe.encode()).hexdigest()
 
-    def creer_super_admin(self):
+    def creer_super_admin(self): # Méthode pour créer un super admin
         """Crée le super administrateur s'il n'existe pas"""
         conn = get_connection()
         if not conn:
@@ -70,7 +77,7 @@ class Auth:
         finally:
             conn.close()
 
-    def creer_admins_regionaux(self):
+    def creer_admins_regionaux(self): # Méthode pour créer les admins régionaux
         """Crée automatiquement les 4 administrateurs régionaux"""
         if not self.session_manager.current_user:
             print("❌ Vous devez être connecté en tant que super admin pour cette opération.")
@@ -95,7 +102,7 @@ class Auth:
                     WHERE role = 'admin' AND region = %s
                 """, (region,))
                 
-                if not cursor.fetchone():
+                if not cursor.fetchone(): # Si l'admin n'existe pas, on le créera
                     mot_de_passe = self.generer_mot_de_passe()
                     hash_mdp = self.hasher_mot_de_passe(mot_de_passe)
                     expiration = datetime.now() + timedelta(days=90)
@@ -130,7 +137,7 @@ class Auth:
         finally:
             conn.close()
 
-    def connexion(self):
+    def connexion(self): # Méthode pour gérer la connexion d'un utilisateur
         """Gère la connexion d'un utilisateur"""
         login = input("🔑 Login : ")
         mot_de_passe = input("🔒 Mot de passe : ")
@@ -149,7 +156,7 @@ class Auth:
             """, (login,))
             
             tentatives = cursor.fetchone()
-            if tentatives and tentatives['tentatives'] >= 5:
+            if tentatives and tentatives['tentatives'] >= 3:
                 if datetime.now() - tentatives['derniere_tentative'] < timedelta(minutes=15):
                     print("❌ Compte temporairement bloqué. Réessayez dans 15 minutes.")
                     return False
@@ -201,19 +208,19 @@ class Auth:
         self.session_manager.end_session()
         print("👋 Vous avez été déconnecté avec succès.")
 
-    def verifier_autorisation(self, region=None):
+    def verifier_autorisation(self, region=None): # Méthode pour vérifier les autorisations
         """Vérifie si l'utilisateur actuel a les droits nécessaires pour une région"""
-        if not self.session_manager.is_session_valid():
+        if not self.session_manager.is_session_valid(): # Si la session n'est pas valide, on retourne False
             return False
 
-        user_info = self.session_manager.get_current_user_role()
+        user_info = self.session_manager.get_current_user_role() # On récupère les informations de l'utilisateur actuel
         if not user_info:
             return False
 
-        if user_info['role'] == 'super_admin':
+        if user_info['role'] == 'super_admin': # Si l'utilisateur est un super admin, on retourne True
             return True
 
         if user_info['role'] == 'admin':
-            return region is None or region == user_info['region']
+            return region is None or region == user_info['region'] # Si l'utilisateur est un admin, on vérifie la région
 
         return False

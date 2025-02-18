@@ -1,9 +1,9 @@
 from db_config import get_connection
 from mysql.connector import Error
 
-class Storage:
+class Storage: # Classe Storage
     @staticmethod
-    def sauvegarder_utilisateur(utilisateur):
+    def sauvegarder_utilisateur(utilisateur): # Méthode pour sauvegarder un utilisateur
         """Sauvegarde ou met à jour un utilisateur dans la base de données"""
         conn = get_connection()
         if not conn:

@@ -4,11 +4,13 @@ from db_config import get_connection
 from mysql.connector import Error
 
 class SessionManager:
-    def __init__(self):
-        self.current_user = None
-        self.session_token = None
+    def __init__(self): # Constructeur de la classe SessionManager. 
+        # Le constructeur sert a initialiser un nouvel objet de la classe. self fait reference à cet objet = l'instance courante de la classe.
+        # Cette instance de la classe SessionManager contient deux attributs : current_user et session_token : 
+        self.current_user = None # Initialisation de l'attribut current_user
+        self.session_token = None # Initialisation de l'attribut session_token
 
-    def create_session(self, login):
+    def create_session(self, login): # Méthode pour créer une session
         """Crée une nouvelle session pour l'utilisateur"""
         conn = get_connection()
         if not conn:
@@ -39,7 +41,7 @@ class SessionManager:
         finally:
             conn.close()
 
-    def end_session(self):
+    def end_session(self): # Méthode pour terminer une session
         """Termine la session courante"""
         if not self.current_user or not self.session_token:
             return
@@ -65,7 +67,7 @@ class SessionManager:
         finally:
             conn.close()
 
-    def is_session_valid(self):
+    def is_session_valid(self): # Méthode pour vérifier si une session est valide
         """Vérifie si la session courante est valide"""
         if not self.current_user or not self.session_token:
             return False
@@ -92,7 +94,7 @@ class SessionManager:
         finally:
             conn.close()
 
-    def get_current_user_role(self):
+    def get_current_user_role(self): # Méthode pour obtenir le rôle de l'utilisateur courant
         """Retourne le rôle de l'utilisateur courant"""
         if not self.current_user:
             return None

@@ -3,13 +3,16 @@ from users import UserManager
 from region_manager import RegionManager
 from db_config import init_database
 
-class Application:
-    def __init__(self):
-        self.auth = Auth()
-        self.user_manager = UserManager(self.auth)
-        self.region_manager = RegionManager(self.auth)
+## Classe principale de l'application
+## Cette classe contient des méthodes pour afficher le menu, gérer les régions, et exécuter l'application
+class Application: # Classe Application
+    def __init__(self): # Constructeur de la classe Application 
+        # Création d'instances des classes Auth, UserManager et RegionManager
+        self.auth = Auth() # Création d'une instance de la classe Auth
+        self.user_manager = UserManager(self.auth) # Création d'une instance de la classe UserManager
+        self.region_manager = RegionManager(self.auth) # Création d'une instance de la classe RegionManager
         
-    def afficher_menu(self):
+    def afficher_menu(self): # Méthode pour afficher le menu
         """Affiche le menu selon le rôle de l'utilisateur"""
         user_info = self.auth.session_manager.get_current_user_role()
         
@@ -21,6 +24,7 @@ class Application:
         print("5. Réinitialiser un mot de passe")
         
         if user_info['role'] == 'super_admin':
+            print("Extensions pour le super admin:")
             print("6. Créer les administrateurs régionaux")
             print("7. Gérer les régions")
         
@@ -29,7 +33,7 @@ class Application:
         
         return input("\nVotre choix : ").upper()
         
-    def gerer_regions(self):
+    def gerer_regions(self): # Méthode pour gérer les régions
         """Sous-menu pour la gestion des régions"""
         while True:
             print("\n=== Gestion des Régions ===")
@@ -62,7 +66,7 @@ class Application:
             else:
                 print("❌ Choix invalide")
 
-    def executer(self):
+    def executer(self): # Méthode pour exécuter l'application
         """Point d'entrée principal de l'application"""
         print("=== Initialisation du système ===")
         if not init_database():
@@ -131,9 +135,9 @@ class Application:
             except Exception as e:
                 print(f"❌ Une erreur est survenue: {str(e)}")
 
-def main():
-    app = Application()
-    app.executer()
+def main(): # Fonction principale
+    app = Application() # Création d'une instance de la classe Application
+    app.executer() 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # Point d'entrée du programme
     main()

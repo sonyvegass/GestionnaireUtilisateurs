@@ -2,9 +2,47 @@ from datetime import datetime, timedelta
 from mysql.connector import Error
 from db_config import get_connection
 
-class UserManager:
-    def __init__(self, auth):
-        self.auth = auth
+class UserManager: # Classe UserManager
+    def __init__(self, auth): # Constructeur de la classe UserManager. Le constructeur sert à initialiser un nouvel objet de la classe.
+       # Cet objet contient l'attribut auth qui est initialisé avec la valeur de l'argument auth passé lors de la création de l'objet.
+        self.auth = auth # Initialisation de l'attribut auth. 
+        
+    def verifier_admin_unique(self, region, login_exclu=None): # Méthode pour vérifier si un admin est unique
+        """Vérifie s'il existe déjà un admin dans la région donnée"""
+        conn = get_connection() # Connexion à la base de données
+        if not conn:
+            return False
+
+        try:
+            cursor = conn.cursor(dictionary=True)
+            
+            query = """
+                SELECT COUNT(*) as count 
+                FROM utilisateurs 
+                WHERE role = 'admin' AND region = %s
+            """
+            params = [region]
+            
+            if login_exclu:
+                query += " AND login != %s"
+                params.append(login_exclu)
+            
+            cursor.execute(query, params)
+            result = cursor.fetchone()
+            
+            return result['count'] > 0
+            
+        except Error as e:
+            print(f"❌ Erreur lors de la vérification d'admin unique: {e}")
+            return True  # En cas d'erreur, on suppose qu'il y a déjà un admin
+            
+        finally:
+            conn.close()
+
+    def demander_confirmation(self, message):
+        """Demande une confirmation à l'utilisateur"""
+        reponse = input(f"{message} (oui/non): ").lower()
+        return reponse == 'oui'
         
     def ajouter_utilisateur(self):
         """Ajoute un nouvel utilisateur avec vérification des droits"""
@@ -23,6 +61,7 @@ class UserManager:
             print("❌ Seul le super admin peut créer des administrateurs.")
             return None
             
+        
         if current_user['role'] == "admin" and region != current_user['region']:
             print("❌ Vous ne pouvez créer des utilisateurs que pour votre région.")
             return None
@@ -67,7 +106,7 @@ class UserManager:
             conn.close()
 
     def modifier_utilisateur(self, login, modifications):
-        """Modifie un utilisateur avec vérification des droits"""
+        """Modifie un utilisateur avec vérification des droits et unicité d'admin"""
         if not self.auth.session_manager.is_session_valid():
             print("❌ Vous devez être connecté pour effectuer cette action.")
             return False
@@ -93,6 +132,14 @@ class UserManager:
                     return False
                 if 'role' in modifications and modifications['role'] == 'admin':
                     print("❌ Vous ne pouvez pas promouvoir un utilisateur en admin.")
+                    return False
+
+            # Vérification pour l'unicité d'admin lors d'un changement de rôle ou de région
+            if ('role' in modifications and modifications['role'] == 'admin') or \
+               ('region' in modifications and modifications['region'] != utilisateur['region']):
+                region = modifications.get('region', utilisateur['region'])
+                if self.verifier_admin_unique(region, login):
+                    print(f"❌ Il existe déjà un administrateur pour la région {region}.")
                     return False
                     
             champs_autorises = ['nom', 'prenom', 'role', 'region']
@@ -125,7 +172,7 @@ class UserManager:
             conn.close()
 
     def supprimer_utilisateur(self, login):
-        """Supprime un utilisateur avec vérification des droits"""
+        """Supprime un utilisateur avec vérification des droits et confirmation"""
         if not self.auth.session_manager.is_session_valid():
             print("❌ Vous devez être connecté pour effectuer cette action.")
             return False
@@ -155,6 +202,20 @@ class UserManager:
                     
             if utilisateur['role'] == 'super_admin':
                 print("❌ Impossible de supprimer le super admin!")
+                return False
+
+            # Demande de confirmation avec détails de l'utilisateur
+            message = f"""
+⚠️ Vous êtes sur le point de supprimer l'utilisateur suivant :
+- Nom: {utilisateur['prenom']} {utilisateur['nom']}
+- Login: {utilisateur['login']}
+- Rôle: {utilisateur['role']}
+- Région: {utilisateur['region']}
+
+Êtes-vous sûr de vouloir continuer ?"""
+
+            if not self.demander_confirmation(message):
+                print("❌ Suppression annulée.")
                 return False
                 
             cursor.execute("DELETE FROM utilisateurs WHERE login = %s", (login,))

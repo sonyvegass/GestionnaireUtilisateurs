@@ -1,14 +1,14 @@
 import re
 from datetime import datetime
 
-class DataValidator:
+class DataValidator: # Classe pour valider les données
     NOM_MIN_LENGTH = 2
     NOM_MAX_LENGTH = 50
     ROLES_VALIDES = ['super_admin', 'admin', 'utilisateur']
     REGIONS_VALIDES = ['Paris', 'Rennes', 'Strasbourg', 'Grenoble', 'Nantes']
     
-    @staticmethod
-    def valider_nom(nom):
+    @staticmethod # Méthode pour valider un nom ou prénom
+    def valider_nom(nom): # Méthode pour valider un nom
         """Valide un nom ou prénom"""
         if not isinstance(nom, str):
             return False, "Le nom doit être une chaîne de caractères"
@@ -26,7 +26,7 @@ class DataValidator:
         return True, "Nom valide"
         
     @staticmethod
-    def valider_role(role):
+    def valider_role(role): # Méthode pour valider un rôle utilisateur
         """Valide un rôle utilisateur"""
         if not isinstance(role, str):
             return False, "Le rôle doit être une chaîne de caractères"
@@ -38,7 +38,7 @@ class DataValidator:
         return True, "Rôle valide"
         
     @staticmethod
-    def valider_region(region):
+    def valider_region(region): # Méthode pour valider une région
         """Valide une région"""
         if not isinstance(region, str):
             return False, "La région doit être une chaîne de caractères"
@@ -49,7 +49,7 @@ class DataValidator:
         return True, "Région valide"
         
     @staticmethod
-    def valider_date(date_str):
+    def valider_date(date_str): # Méthode pour valider une date
         """Valide une date au format YYYY-MM-DD"""
         try:
             datetime.strptime(date_str, '%Y-%m-%d')
@@ -58,7 +58,7 @@ class DataValidator:
             return False, "Format de date invalide. Utilisez YYYY-MM-DD"
             
     @classmethod
-    def valider_utilisateur(cls, data):
+    def valider_utilisateur(cls, data): # Méthode pour valider un utilisateur
         """Valide toutes les données d'un utilisateur"""
         erreurs = []
         

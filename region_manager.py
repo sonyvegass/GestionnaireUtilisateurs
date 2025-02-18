@@ -2,12 +2,14 @@ from mysql.connector import Error
 from db_config import get_connection
 from validators import DataValidator
 
-class RegionManager:
-    def __init__(self, auth):
-        self.auth = auth
-        self.validator = DataValidator()
+class RegionManager: # Classe RegionManager
+    def __init__(self, auth): # Constructeur de la classe RegionManager. Le constructeur sert à initialiser un nouvel objet de la classe.
+        # Initialisation des attributs auth et validator
+        self.auth = auth # Initialisation de l'attribut auth 
+        # Création d'une instance de la classe DataValidator
+        self.validator = DataValidator() # Initialisation de l'attribut validator
         
-    def ajouter_region(self, nom_region):
+    def ajouter_region(self, nom_region): # Méthode pour ajouter une région
         """Ajoute une nouvelle région"""
         if not self.auth.session_manager.is_session_valid():
             print("❌ Vous devez être connecté pour effectuer cette action.")
